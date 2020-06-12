@@ -2944,7 +2944,7 @@ if (typeof window !== 'undefined' && window.Sweetalert2){  window.swal = window.
 "    .swal2-popup.swal2-toast .swal2-styled:focus {\n" +
 "      box-shadow: 0 0 0 0.0625em #fff, 0 0 0 0.125em rgba(50, 100, 150, 0.4); }\n" +
 "  .swal2-popup.swal2-toast .swal2-success {\n" +
-"    border-color: #a5dc86; }\n" +
+"    border-color: #fff; }\n" +
 "    .swal2-popup.swal2-toast .swal2-success [class^='swal2-success-circular-line'] {\n" +
 "      position: absolute;\n" +
 "      width: 2em;\n" +
@@ -3267,7 +3267,7 @@ if (typeof window !== 'undefined' && window.Sweetalert2){  window.swal = window.
 "  max-width: 100%;\n" +
 "  padding: 1.25em;\n" +
 "  border-radius: 0.3125em;\n" +
-"  background: #fff;\n" +
+"  background: #6c757d;\n" +
 "  font-family: inherit;\n" +
 "  font-size: 1rem;\n" +
 "  box-sizing: border-box; }\n" +
@@ -3285,7 +3285,7 @@ if (typeof window !== 'undefined' && window.Sweetalert2){  window.swal = window.
 "    max-width: 100%;\n" +
 "    margin: 0 0 0.4em;\n" +
 "    padding: 0;\n" +
-"    color: #595959;\n" +
+"    color: #fff;\n" +
 "    font-size: 1.875em;\n" +
 "    font-weight: 600;\n" +
 "    text-align: center;\n" +
@@ -3405,7 +3405,7 @@ if (typeof window !== 'undefined' && window.Sweetalert2){  window.swal = window.
 "    justify-content: center;\n" +
 "    margin: 0;\n" +
 "    padding: 0;\n" +
-"    color: #545454;\n" +
+"    color: #fff;\n" +
 "    font-size: 1.125em;\n" +
 "    font-weight: 300;\n" +
 "    line-height: normal;\n" +
@@ -3587,7 +3587,7 @@ if (typeof window !== 'undefined' && window.Sweetalert2){  window.swal = window.
 "    border-color: #c9dae1;\n" +
 "    color: #87adbd; }\n" +
 "  .swal2-icon.swal2-success {\n" +
-"    border-color: #a5dc86; }\n" +
+"    border-color: #fff; }\n" +
 "    .swal2-icon.swal2-success [class^='swal2-success-circular-line'] {\n" +
 "      position: absolute;\n" +
 "      width: 3.75em;\n" +
@@ -3635,7 +3635,7 @@ if (typeof window !== 'undefined' && window.Sweetalert2){  window.swal = window.
 "      position: absolute;\n" +
 "      height: .3125em;\n" +
 "      border-radius: .125em;\n" +
-"      background-color: #a5dc86;\n" +
+"      background-color: #fff;\n" +
 "      z-index: 2; }\n" +
 "      .swal2-icon.swal2-success [class^='swal2-success-line'][class$='tip'] {\n" +
 "        top: 2.875em;\n" +

@@ -1,17 +1,16 @@
 @extends('layout')
 
-@section('title','Home')
+@section('title','Category - PRINTG')
 
 @section('content')
-<div class="panel panel-primary">
-  <div class="panel-heading">
-    <h4 class="panel-title mb-3">Product
-      <a href="{{ route('product.create') }}" class="btn btn-success float-right modal-show" title="Create Product"><i class="icon-plus"></i> Create</a>
+<div style="margin-top: 7.5rem;" class="container">
+<div class="card">
+  <div class="card-body">
+    <h4 class="panel-title mb-3"><strong>Category</strong>
+      <a href="{{ route('category.create') }}" class="btn btn-outline-success float-right modal-show" name="Create Category"><i class="icon-plus"></i> Create</a>
     </h4>
-  </div>
-  <div class="panel-body">
-    <table id="product_table" class="row-border compact order-column" style="width:100%">
-      <thead>
+    <table id="table" class="table row-border hover order-column" style="width:100%">
+      <thead class="thead-light">
         <tr>
           <th>No</th>
           <th>Category</th>
@@ -25,23 +24,37 @@
     </table>
   </div>
 </div>
+</div>
 @endsection
 
 @push('scripts')
 <script>
-  $('#product_table').DataTable({
+  $('#table').DataTable({
     responsive: true,
-    processing: true,
     serverSide: true,
-    ajax: "{{ route('product.dt') }}",
-    order: [[ 1, "desc" ]],
+    ajax: "{{ route('category.dt') }}",
+    order: [[ 1, "asc" ]],
     columns: [
-      {data: 'DT_RowIndex', name: 'no', orderable:false, width: '7.5%', className: 'dt-center'},
-      {data: 'name', name: 'name', width: '20', className: 'dt-head-center'},
-      {data: 'category_id', name: 'category', width: '20', className: 'dt-head-center'},
-      {data: 'brand_id', name: 'brand', width: '20%', className: 'dt-head-center'},
-      {data: 'updated_at', name: 'updated_at', width: '20%', className: 'dt-head-center'},
-      {data: 'action', name: 'action', width:'12.5%', className: 'dt-center'}
+      {data: 'DT_RowIndex', name: 'no', orderable:false, width: '10%', className: 'dt-center'},
+      {data: 'name', name: 'name', width: '37.5%', className: 'dt-head-center'},
+      {
+        data: 'product',
+        name: 'product.name',
+        orderable:false,
+        width: '37.5%',
+        className: 'dt-head-center',
+        render: function(data, type, row, full) {
+          var txt = " ";
+          data.forEach(function (item) {
+            if (txt.length > 1) {
+              txt += '</br> '
+            }
+            txt += item.name;
+          });
+          return txt
+        }
+      },
+      {data: 'action', name: 'action', orderable:false, width:'15%', className: 'dt-center'}
     ],
   });
 
@@ -49,9 +62,16 @@
     event.preventDefault();
 
     var me = $(this),
-      url = me.attr('href'),
-      title = me.attr('title');
+        url = me.attr('href'),
+        title = me.attr('name');
 
+    var form = $('.form')
+    var validation = Array.prototype.filter.call(form, function(form) {
+      form.classList.remove('was-validated');
+    });
+    $('#modal-body').find("input,textarea,select")
+      .val('')
+      .end();
     $('#modal-title').text(title);
     $('#modal-close').text(me.hasClass('edit') ? 'Cancel' : 'Close');
     $('#modal-save').text(me.hasClass('edit') ? 'Update' : 'Create');
@@ -61,10 +81,113 @@
       dataType: 'html',
       success: function (response) {
         $('#modal-body').html(response);
+        $('#modal-title').text(title);
+        $('#modal-close').text(me.hasClass('edit') ? 'Cancel' : 'Close');
+        $('#modal-save').text(me.hasClass('edit') ? 'Update' : 'Create');
       }
     });
 
     $('#modal').modal('show');
   });
+
+  $('body').on('submit','.form', function(event){
+    event.preventDefault();
+
+    var form = $('form'),
+        url = form.attr('action'),
+        method = $('input[name=_method]').val() == undefined ? 'POST' : 'PUT';
+
+    $.ajax({
+      url : url,
+      method : method,
+      data : form.serialize(),
+
+      success: function(response){
+        $('#modal').modal('hide');
+        $('#table').DataTable().ajax.reload();
+        const Toast = Swal.mixin({
+          toast: true,
+          position: 'top-end',
+          showConfirmButton: false,
+          timer: 3000,
+          timerProgressBar: true,
+          background: '#28a745',
+          onOpen: (toast) => {
+            toast.addEventListener('mouseenter', Swal.stopTimer)
+            toast.addEventListener('mouseleave', Swal.resumeTimer)
+          }
+        })
+        Toast.fire({
+          type: 'success',
+          title: 'Data has been saved!'
+        })
+        $('#modal-body').html('reset');
+      },
+
+      error: function(){
+        'use strict';
+        var validation = Array.prototype.filter.call(form, function(form) {
+          form.classList.add('was-validated');
+        });
+      }
+    });
+  });
+
+  $('body').on('click', '.delete', function (event) {
+    event.preventDefault();
+
+    var me = $(this),
+        url = me.attr('href'),
+        name = me.attr('name'),
+        csrf_token = $('meta[name="csrf-token"]').attr('content');
+
+    swal({
+      title: 'Are you sure want to delete ' + name + '?',
+      text: "You won't be able to revert this!",
+      type: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, delete it!'
+    }).then((result)=>{
+      if(result.value){
+        $.ajax({
+          url: url,
+          type: "POST",
+          data: {
+            '_method': 'DELETE',
+            '_token': csrf_token
+          },
+          success: function(response){
+            $('#table').DataTable().ajax.reload();
+            const Toast = Swal.mixin({
+              toast: true,
+              position: 'top-end',
+              showConfirmButton: false,
+              timer: 3000,
+              timerProgressBar: true,
+              background: '#BD362F',
+              onOpen: (toast) => {
+                toast.addEventListener('mouseenter', Swal.stopTimer)
+                toast.addEventListener('mouseleave', Swal.resumeTimer)
+              }
+            })
+            Toast.fire({
+              type: 'success',
+              text: 'Data has been deleted'
+            })
+          },
+          error: function(xhr){
+            swal({
+              type: 'error',
+              title: 'Oops...',
+              text: 'Something went wrong!'
+            });
+          }
+        });
+      }
+    });
+  });
+
 </script>
 @endpush

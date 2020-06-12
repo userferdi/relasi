@@ -1,72 +1,60 @@
 @extends('layout')
 
-@section('title','Home')
+@section('title','Brand - PRINTG')
 
 @section('content')
-<div class="row">
-  <div class="col-sm-3 order-sm-1 mb-3">
-    <h4 class="d-flex justify-content-between align-items-center mb-3">Filter</h4>
-    <ul class="list-group mb-3">
-      <li class="list-group-item d-flex justify-content-between lh-condensed">
-        <div>
-          <h6 class="my-0">Category</h6>
-          <small class="text-muted"></small>
-        </div>
-        <span class="text-muted"></span>
-      </li>
-      <li class="list-group-item d-flex justify-content-between lh-condensed">
-        <div>
-          <h6 class="my-0">Brand</h6>
-          <small class="text-muted"></small>
-        </div>
-        <span class="text-muted"></span>
-      </li>
-    </ul>
-  </div>
-  <div class="col-sm-9 order-sm-2">
-    <div class="panel panel-primary">
-      <div class="panel-heading">
-        <h4 class="panel-title mb-3">Product
-          <a href="{{ route('product.create') }}" class="btn btn-success float-right modal-show" title="Create Product"><i class="icon-plus"></i> Create</a>
-        </h4>
-      </div>
-      <div class="panel-body">
-        <table id="product_table" class="row-border compact order-column" style="width:100%">
-          <thead>
-            <tr>
-              <th>No</th>
-              <th>Product</th>
-              <th>Category</th>
-              <th>Brand</th>
-              <th>Update</th>
-              <th>Option</th>
-            </tr>
-          </thead>
-          <tbody>
+<div style="margin-top: 7.5rem;" class="container">
+<div class="card">
+  <div class="card-body">
+    <h4 class="panel-title mb-3"><strong>Brand</strong>
+      <a href="{{ route('brand.create') }}" class="btn btn-outline-success float-right modal-show" name="Create Brand"><i class="icon-plus"></i> Create</a>
+    </h4>
+    <table id="table" class="table row-border hover order-column" style="width:100%">
+      <thead class="thead-light">
+        <tr>
+          <th>No</th>
+          <th>Brand</th>
+          <th>Product</th>
+          <th>Option</th>
+        </tr>
+      </thead>
+      <tbody>
 
-          </tbody>
-        </table>
-      </div>
-    </div>
+      </tbody>
+    </table>
   </div>
+</div>
 </div>
 @endsection
 
 @push('scripts')
 <script>
-  $('#product_table').DataTable({
+  $('#table').DataTable({
     responsive: true,
-    processing: true,
     serverSide: true,
-    ajax: "{{ route('product.dt') }}",
-    order: [[ 1, "desc" ]],
+    ajax: "{{ route('brand.dt') }}",
+    order: [[ 1, "asc" ]],
     columns: [
-      {data: 'DT_RowIndex', name: 'no', orderable:false, width: '7.5%', className: 'dt-center'},
-      {data: 'name', name: 'name', width: '20', className: 'dt-head-center'},
-      {data: 'category_id', name: 'category', width: '20', className: 'dt-head-center'},
-      {data: 'brand_id', name: 'brand', width: '20%', className: 'dt-head-center'},
-      {data: 'updated_at', name: 'updated_at', width: '20%', className: 'dt-head-center'},
-      {data: 'action', name: 'action', width:'12.5%', className: 'dt-center'}
+      {data: 'DT_RowIndex', name: 'no', orderable:false, width: '10%', className: 'dt-center'},
+      {data: 'name', name: 'name', width: '37.5%', className: 'dt-head-center'},
+      {
+        data: 'product',
+        name: 'product.name',
+        orderable:false,
+        width: '37.5%',
+        className: 'dt-head-center',
+        render: function(data, type, row, full) {
+          var txt = " ";
+          data.forEach(function (item) {
+            if (txt.length > 1) {
+              txt += '</br> '
+            }
+            txt += item.name;
+          });
+          return txt
+        }
+      },
+      {data: 'action', name: 'action', orderable:false, width:'15%', className: 'dt-center'}
     ],
   });
 
@@ -75,21 +63,119 @@
 
     var me = $(this),
       url = me.attr('href'),
-      title = me.attr('title');
-
-    $('#modal-title').text(title);
-    $('#modal-close').text(me.hasClass('edit') ? 'Cancel' : 'Close');
-    $('#modal-save').text(me.hasClass('edit') ? 'Update' : 'Create');
+      title = me.attr('name');
 
     $.ajax({
       url: url,
       dataType: 'html',
       success: function (response) {
         $('#modal-body').html(response);
+        $('#modal-title').text(title);
+        $('#modal-close').text(me.hasClass('edit') ? 'Cancel' : 'Close');
+        $('#modal-save').text(me.hasClass('edit') ? 'Update' : 'Create');
       }
     });
 
     $('#modal').modal('show');
   });
+
+  $('body').on('submit','.form', function(event){
+    event.preventDefault();
+
+    var form = $('form'),
+        url = form.attr('action'),
+        method = $('input[name=_method]').val() == undefined ? 'POST' : 'PUT';
+
+    $.ajax({
+      url : url,
+      method : method,
+      data : form.serialize(),
+
+      success: function(response){
+        form.trigger('reset');
+        $('#modal').modal('hide');
+        $('#table').DataTable().ajax.reload();
+        const Toast = Swal.mixin({
+          toast: true,
+          position: 'top-end',
+          showConfirmButton: false,
+          timer: 3000,
+          timerProgressBar: true,
+          background: '#28a745',
+          onOpen: (toast) => {
+            toast.addEventListener('mouseenter', Swal.stopTimer)
+            toast.addEventListener('mouseleave', Swal.resumeTimer)
+          }
+        })
+        Toast.fire({
+          type: 'success',
+          title: 'Data has been saved!'
+        })
+      },
+
+      error: function(){
+        var validation = Array.prototype.filter.call(form, function(form) {
+          form.classList.add('was-validated');
+        });
+      }
+    });
+  });
+
+  $('body').on('click', '.delete', function (event) {
+    event.preventDefault();
+
+    var me = $(this),
+        url = me.attr('href'),
+        name = me.attr('name'),
+        csrf_token = $('meta[name="csrf-token"]').attr('content');
+
+    swal({
+      title: 'Are you sure want to delete ' + name + '?',
+      text: "You won't be able to revert this!",
+      type: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, delete it!'
+    }).then((result)=>{
+      if(result.value){
+        $.ajax({
+          url: url,
+          type: "POST",
+          data: {
+            '_method': 'DELETE',
+            '_token': csrf_token
+          },
+          success: function(response){
+            $('#table').DataTable().ajax.reload();
+            const Toast = Swal.mixin({
+              toast: true,
+              position: 'top-end',
+              showConfirmButton: false,
+              timer: 3000,
+              timerProgressBar: true,
+              background: '#BD362F',
+              onOpen: (toast) => {
+                toast.addEventListener('mouseenter', Swal.stopTimer)
+                toast.addEventListener('mouseleave', Swal.resumeTimer)
+              }
+            })
+            Toast.fire({
+              type: 'success',
+              text: 'Data has been deleted'
+            })
+          },
+          error: function(xhr){
+            swal({
+              type: 'error',
+              title: 'Oops...',
+              text: 'Something went wrong!'
+            });
+          }
+        });
+      }
+    });
+  });
+
 </script>
 @endpush

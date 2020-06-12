@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Category;
+use DataTables;
 use Illuminate\Http\Request;
 
 class CategoryController extends Controller
@@ -11,69 +13,61 @@ class CategoryController extends Controller
         return view('category.index');
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function create()
     {
-        //
+        $model = new Category();
+        return view('form', ['model' => $model]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
     public function store(Request $request)
     {
-        //
+        $this->validate($request, [
+            'name' => 'required|max:20'
+        ]);
+        $model = Category::create($request->all());
+        return response()->json($model);
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function show($id)
     {
         //
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function edit($id)
     {
-        //
+        $model = Category::findOrFail($id);
+        return view('form', ['model' => $model]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function update(Request $request, $id)
     {
-        //
+        $this->validate($request, [
+            'name' => 'required'
+        ]);
+        $model = Category::findOrFail($id)->update($request->all());
+        return response()->json($model);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
+    public function delete($id)
     {
-        //
+        $model = Category::findOrFail($id)->delete();
+        return response()->json($model);
+    }
+
+    public function datatable()
+    {
+        $model = Category::with(['product'])->get();
+        return DataTables::of($model)
+            ->addColumn('action', function($model){
+                return view('action',[
+                    'model' => $model,
+                    'etitle' => 'Category',
+                    'edit' => route('category.edit', $model->id),
+                    'delete' => route('category.delete', $model->id)
+                ]);
+            })
+            ->addIndexColumn()
+            ->rawColumns(['action'])
+            ->make(true);
     }
 }

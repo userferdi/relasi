@@ -1,7 +1,7 @@
 <?php
 
 Route::get('/', function () {
-    return view('welcome');
+    return view('coba');
 });
 
 Route::get('shop', 'ProductController@index')->name('shop');
@@ -13,8 +13,8 @@ Route::prefix('shop/product')->group(function(){
 	Route::get('create', 'ProductController@create')->name('product.create');
 	Route::post('store', 'ProductController@store')->name('product.store');
 	Route::get('edit/{id}', 'ProductController@edit')->name('product.edit');
-	Route::put('update', 'ProductController@update')->name('product.update');
-	Route::get('delete/{id}', 'ProductController@delete')->name('product.delete');
+	Route::put('update/{id}', 'ProductController@update')->name('product.update');
+	Route::delete('delete/{id}', 'ProductController@delete')->name('product.delete');
 });
 
 Route::prefix('shop/category')->group(function(){
@@ -24,8 +24,8 @@ Route::prefix('shop/category')->group(function(){
 	Route::get('create', 'CategoryController@create')->name('category.create');
 	Route::post('store', 'CategoryController@store')->name('category.store');
 	Route::get('edit/{id}', 'CategoryController@edit')->name('category.edit');
-	Route::put('update', 'CategoryController@update')->name('category.update');
-	Route::get('delete/{id}', 'CategoryController@delete')->name('category.delete');
+	Route::put('update/{id}', 'CategoryController@update')->name('category.update');
+	Route::delete('delete/{id}', 'CategoryController@delete')->name('category.delete');
 });
 
 Route::prefix('shop/brand')->group(function(){
@@ -35,6 +35,6 @@ Route::prefix('shop/brand')->group(function(){
 	Route::get('create', 'BrandController@create')->name('brand.create');
 	Route::post('store', 'BrandController@store')->name('brand.store');
 	Route::get('edit/{id}', 'BrandController@edit')->name('brand.edit');
-	Route::put('update', 'BrandController@update')->name('brand.update');
-	Route::get('delete/{id}', 'BrandController@delete')->name('brand.delete');
+	Route::put('update/{id}', 'BrandController@update')->name('brand.update');
+	Route::delete('delete/{id}', 'BrandController@delete')->name('brand.delete');
 });
